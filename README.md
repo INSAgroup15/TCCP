@@ -56,6 +56,10 @@ Figures are written to `figures/` and can be used in `reports/telco_churn_report
 
 The notebook includes batch scoring (`BATCH_SIZE = 1000`) for production-style inference. A live web application, cloud deployment, and managed model registry are optional extensions; they are not required for the assignment. Before deployment, validate the champion on a fresh holdout period and monitor calibration drift.
 
+## MLOps workflow
+
+This repository includes a lightweight local MLOps setup: a versioned model registry, batch scoring CLI, FastAPI prediction service, Docker image, and GitHub Actions validation workflow. See [MODEL_REGISTRY.md](MODEL_REGISTRY.md) for the commands to register, promote, score, and serve a model.
+
 ## License
 
 MIT License. Dataset rights remain with the original Kaggle provider.
