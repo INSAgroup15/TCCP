@@ -7,3 +7,5 @@ jupyter>=1.0
 shap>=0.44
 xgboost>=2.0
 torch>=2.2
+fastapi>=0.110
+uvicorn[standard]>=0.29
