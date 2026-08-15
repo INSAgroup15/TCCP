@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Group 15 — Trustworthy Churn Report</title><style>body{font-family:Arial;max-width:900px;margin:40px auto;line-height:1.55;color:#222}h1,h2{color:#123b5d}table{border-collapse:collapse}td,th{border:1px solid #bbb;padding:8px}</style></head>
+<body><h1>Group 15: Trustworthy Telco Churn Model</h1><p><strong>Status:</strong> report scaffold — run the notebooks and replace bracketed values before submission.</p>
+<h2>Executive decision</h2><p>Target the top [K]% of customers only if the calibrated validation probabilities support the expected-value assumptions. State budget: [amount].</p>
+<h2>Data and method</h2><p>IBM Telco Customer Churn. We remove customerID, coerce TotalCharges to numeric, impute within the training pipeline, one-hot encode categoricals, and fit a class-weighted logistic regression calibrated with sigmoid cross-validation.</p>
+<h2>Validation</h2><table><tr><th>Metric</th><th>Result</th></tr><tr><td>ROC AUC</td><td>[insert]</td></tr><tr><td>Brier score</td><td>[insert]</td></tr><tr><td>Log loss</td><td>[insert]</td></tr></table><p>Insert <code>figures/calibration_curve.png</code> and explain whether the curve is close to the diagonal, especially in the high-risk region used for targeting.</p>
+<h2>Churn drivers</h2><p>Insert <code>figures/shap_summary.png</code>. Discuss direction, magnitude, and whether each driver is actionable; do not interpret association as causation.</p>
+<h2>Top-k simulation</h2><p>Assumptions: contact cost = [ ], customer value = [ ], save rate = [ ], budget = [ ]. Expected net value = [ ]. Include a sensitivity table for save rate and contact cost.</p>
+<h2>Limitations</h2><p>The dataset is observational and not time-based. The save rate is assumed, not learned. A production version needs temporal validation, intervention experiments, monitoring, fairness checks, and retraining triggers.</p></body></html>
