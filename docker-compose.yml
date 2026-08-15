@@ -1,0 +1,9 @@
+services:
+  churn-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      MODEL_NAME: telco-churn
+      MODEL_STAGE: production
+      REGISTRY_ROOT: models/registry
