@@ -21,6 +21,7 @@ Run the notebooks in this order.
 5. `notebooks/04_shap_analysis.ipynb` - global and local churn explanations.
 6. `notebooks/05_retention_simulation.ipynb` - budget and expected-value targeting.
 7. `notebooks/06_threshold_optimization.ipynb` - out-of-fold threshold selection and accuracy-recall trade-off.
+8. `notebooks/07_model_evaluation_visuals.ipynb` - train/test loss, ROC, PR, calibration, and Seaborn charts.
 
 ## Models
 
