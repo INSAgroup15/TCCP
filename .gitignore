@@ -3,4 +3,6 @@ __pycache__/
 *.py[cod]
 artifacts/
 figures/
+models/registry/
+.pytest_cache/
 .ipynb_checkpoints/
