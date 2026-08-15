@@ -10,6 +10,10 @@ Assignment due in 4 days. We build a churn model whose probabilities are reliabl
 - `notebooks/04_shap_analysis.ipynb` — global and local churn explanations
 - `notebooks/05_retention_simulation.ipynb` — fixed-budget targeting and expected value
 - `reports/churn_report.html` — report scaffold
+- `data/telco_clean_32col.csv` — supplied engineered dataset
+- `reports/telco_churn_report.html` — supplied full report
+
+Start with `notebooks/00_project_guide.ipynb`. It explains every step and creates the main exploratory visualizations before the modeling notebooks are run.
 
 ## Quick start
 
@@ -26,6 +30,14 @@ python -m src.simulation --model artifacts/model.joblib
 ```
 
 The target is `Churn` (`Yes`/`No`). `customerID` is excluded as an identifier. Missing `TotalCharges` values are imputed inside the modeling pipeline.
+
+For the supplied engineered-data benchmark, run from the repository root:
+
+```bash
+Run the notebooks in order: `01_data_cleaning.ipynb`, `02_model_training.ipynb`, `03_calibration.ipynb`, `04_shap_analysis.ipynb`, and `05_retention_simulation.ipynb`.
+```
+
+The cleaning notebook requires `data/telco.csv`; the supplied `data/telco_clean_32col.csv` can be used directly for model training.
 
 ## Decision framing
 
