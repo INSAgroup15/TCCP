@@ -1,5 +1,5 @@
 bundle:
-  name: tccp-cicd
+  name: TCCP-cicd
 
 include:
   - resources/*.yml
