@@ -2,6 +2,8 @@
 import argparse
 from pathlib import Path
 import joblib
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from sklearn.calibration import calibration_curve
 from sklearn.metrics import brier_score_loss, roc_auc_score, log_loss
