@@ -7,3 +7,8 @@ services:
       MODEL_NAME: telco-churn
       MODEL_STAGE: production
       REGISTRY_ROOT: models/registry
+      # Databricks production example:
+      # MLFLOW_TRACKING_URI: databricks
+      # MLFLOW_REGISTRY_URI: databricks-uc
+      # MLFLOW_MODEL_URI: models:/prod.tccp-cicd.telco_churn@Champion
+      # MODEL_FEATURE_COLUMNS: tenure,MonthlyCharges,TotalCharges,Contract

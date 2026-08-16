@@ -16,8 +16,9 @@ from .model_registry import ModelRegistry
 REGISTRY_ROOT = os.getenv("REGISTRY_ROOT", "models/registry")
 MODEL_NAME = os.getenv("MODEL_NAME", "telco-churn")
 MODEL_STAGE = os.getenv("MODEL_STAGE", "production")
+MLFLOW_MODEL_URI = os.getenv("MLFLOW_MODEL_URI")
 
-app = FastAPI(title="Telco Churn Prediction API", version="1.0.0")
+app = FastAPI(title="Trustworthy Customer Churn Prediction API", version="1.0.0")
 
 
 class ScoreRequest(BaseModel):
@@ -26,6 +27,24 @@ class ScoreRequest(BaseModel):
 
 @lru_cache(maxsize=1)
 def get_production_model():
+    if MLFLOW_MODEL_URI:
+        try:
+            import mlflow
+            import mlflow.sklearn
+        except ImportError as error:
+            raise RuntimeError("MLflow is required when MLFLOW_MODEL_URI is set. Install requirements.txt first.") from error
+        mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "databricks"))
+        if os.getenv("MLFLOW_REGISTRY_URI"):
+            mlflow.set_registry_uri(os.environ["MLFLOW_REGISTRY_URI"])
+        model = mlflow.sklearn.load_model(MLFLOW_MODEL_URI)
+        metadata = {
+            "model_name": os.getenv("MLFLOW_MODEL_NAME", MODEL_NAME),
+            "version": MLFLOW_MODEL_URI,
+            "feature_columns": os.getenv("MODEL_FEATURE_COLUMNS", "").split(","),
+        }
+        if not metadata["feature_columns"] or metadata["feature_columns"] == [""]:
+            raise RuntimeError("MODEL_FEATURE_COLUMNS is required when MLFLOW_MODEL_URI is set")
+        return model, metadata
     return ModelRegistry(REGISTRY_ROOT).load(MODEL_NAME, MODEL_STAGE)
 
 

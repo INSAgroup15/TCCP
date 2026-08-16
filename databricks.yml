@@ -1,0 +1,18 @@
+bundle:
+  name: telco-churn
+
+include:
+  - resources/*.yml
+
+variables:
+  cicd_service_principal:
+    default: telco-churn-cicd
+
+targets:
+  prod:
+    mode: production
+    default: true
+    workspace:
+      host: https://dbc-e4c89bbf-531d.cloud.databricks.com
+    run_as:
+      service_principal_name: ${var.cicd_service_principal}
