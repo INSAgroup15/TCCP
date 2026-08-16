@@ -1,4 +1,4 @@
-# TCCP — Trustworthy Customer Churn Prediction
+# TCCP  Trustworthy Customer Churn Prediction
 
 An end-to-end machine-learning project that turns customer data into reliable churn probabilities, understandable explanations, and retention actions that respect a limited budget.
 
@@ -31,7 +31,7 @@ The champion model is a calibrated RBF Support Vector Classifier selected by val
 | Test ROC-AUC | 0.846 ± 0.011 |
 | Test PR-AUC | 0.667 ± 0.025 |
 | Test Brier score | 0.137 ± 0.005 |
-| Test accuracy at 0.30 | 0.755 |
+| Final test accuracy at threshold 0.30 | **75.5%** |
 | Test balanced accuracy | 0.759 |
 
 At a demonstration contact budget of 20%, the simulation targets 281 customers and estimates approximately **$7,654** in net value. This is a scenario estimate based on assumed save rate, customer value, and contact cost—not measured causal revenue.
@@ -196,7 +196,7 @@ Useful endpoints:
 Example request:
 
 ```bash
-curl -X POST http://127.0.0.1:8000/predict \
+curl -X POST https://tccp-imy8.onrender.com/predict \
   -H "Content-Type: application/json" \
   -d '{"records":[{"tenure":12,"MonthlyCharges":75.5,"TotalCharges":906,"Contract":"Month-to-month"}]}'
 ```
@@ -207,7 +207,7 @@ Run the containerized service with:
 docker compose up --build
 ```
 
-The service is available at `http://127.0.0.1:8000`.
+The service is available at `https://tccp-imy8.onrender.com/health`.
 
 ## MLOps and deployment
 
@@ -229,10 +229,9 @@ The dataset is historical and does not prove future performance or causal treatm
 
 ## Technical paper
 
-The full methodology, data contract, evaluation, explainability discussion, retention policy, and MLOps design are documented in [`reports/technical_paper.tex`](reports/technical_paper.tex).
+The full methodology, data contract, evaluation, explainability discussion, retention policy, and MLOps design are documented in [`reports/mmm.pdf`](reports/mmm.pdf).
 
 ## License and attribution
 
-The code is released under the MIT License. Dataset rights remain with the original dataset provider.
-
-**Copyright © 2026 mikiyas**
+The code is released under the MIT License. Dataset rights remain with the original dataset provider - `https://www.kaggle.com/datasets/blastchar/telco-customer-churn`
+**Copyright © 2026 mikiyas zenebe**
