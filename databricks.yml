@@ -1,5 +1,5 @@
 bundle:
-  name: telco-churn
+  name: tccp
 
 include:
   - resources/*.yml
@@ -14,5 +14,6 @@ targets:
     default: true
     workspace:
       host: https://dbc-e4c89bbf-531d.cloud.databricks.com
+      root_path: /Workspace/Users/mikilezen@gmail.com/.bundle/${bundle.name}/${bundle.target}
     run_as:
       service_principal_name: ${var.cicd_service_principal}
