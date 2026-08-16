@@ -36,6 +36,16 @@ The champion model is a calibrated RBF Support Vector Classifier selected by val
 
 At a demonstration contact budget of 20%, the simulation targets 281 customers and estimates approximately **$7,654** in net value. This is a scenario estimate based on assumed save rate, customer value, and contact cost—not measured causal revenue.
 
+### Accuracy by decision threshold
+
+| Decision threshold | Test accuracy | Balanced accuracy | Recall | Customers flagged |
+| ---: | ---: | ---: | ---: | ---: |
+| `0.30` — retention targeting | **75.5%** | 75.9% | 76.7% | 38.7% |
+| `0.50` — standard classification | **79.3%** | 72.0% | 56.4% | 24.1% |
+| `0.60` — standard classification | **80.1%** | 66.6% |  |  |
+
+The `0.30` threshold catches more potential churners, while `0.50` gives higher overall accuracy by flagging fewer customers. The retention workflow therefore uses `0.30` for prioritization rather than relying on accuracy alone.
+
 ## Dataset
 
 The project uses the IBM Telco Customer Churn dataset, supplied in this repository as `data/telco.csv`.
@@ -100,11 +110,11 @@ Preparation includes numeric coercion, missing-value imputation, categorical enc
 
 The demonstration policy uses these tiers:
 
-| Tier | Risk rule | Suggested action |
-| --- | --- | --- |
-| Immediate intervention | `p >= 0.50` | High-touch retention offer or priority call |
-| Nurture sequence | `0.30 <= p < 0.50` | Targeted message, service review, or incentive test |
-| Monitor | `p < 0.30` | Standard service and drift monitoring |
+| Tier | Risk rule | Test accuracy at threshold | Suggested action |
+| --- | --- | ---: | --- |
+| Immediate intervention | `p >= 0.50` | 79.3% | High-touch retention offer or priority call |
+| Nurture sequence | `0.30 <= p < 0.50` | 75.5% at campaign threshold | Targeted message, service review, or incentive test |
+| Monitor | `p < 0.30` | — | Standard service and drift monitoring |
 
 ## Repository structure
 
