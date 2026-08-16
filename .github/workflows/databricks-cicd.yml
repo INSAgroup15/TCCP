@@ -19,10 +19,9 @@ jobs:
       - uses: databricks/setup-cli@main
       - name: Validate Databricks bundle
         env:
-          DATABRICKS_AUTH_TYPE: oauth-m2m
+          DATABRICKS_AUTH_TYPE: pat
           DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: databricks bundle validate -t prod
 
   deploy:
@@ -35,15 +34,13 @@ jobs:
       - uses: databricks/setup-cli@main
       - name: Deploy Databricks bundle
         env:
-          DATABRICKS_AUTH_TYPE: oauth-m2m
+          DATABRICKS_AUTH_TYPE: pat
           DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: databricks bundle deploy -t prod
       - name: Run training job
         env:
-          DATABRICKS_AUTH_TYPE: oauth-m2m
+          DATABRICKS_AUTH_TYPE: pat
           DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: databricks bundle run telco_churn_training -t prod
