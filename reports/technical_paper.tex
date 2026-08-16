@@ -1,0 +1,65 @@
+\documentclass[9pt]{article}
+\usepackage[a4paper,margin=0.62in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\setlist{nosep,leftmargin=*}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue}
+
+\title{\vspace{-1.0em}\textbf{Trustworthy Customer Churn Prediction for\newline Retention-Budget Allocation}}
+\author{Group 15}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1.8em}
+
+\begin{abstract}
+Customer-churn models are useful only when their probabilities support reliable business decisions. This paper presents a reproducible churn pipeline that benchmarks five classifiers, calibrates risk estimates, and selects customers for retention under a fixed budget. The champion model is tracked and deployed through MLflow, Databricks Unity Catalog, and a serverless Databricks job.
+\end{abstract}
+
+\textbf{Keywords:} churn prediction, probability calibration, retention optimization, MLflow, Databricks
+
+\section*{1. Problem and decision objective}
+Given customer features $x$, the system estimates $p(y=1\mid x)$, where $y=1$ denotes churn. The operational objective is expected net value rather than accuracy alone:
+\[
+V(x)=p(y=1\mid x)\,r\,v-c,
+\]
+where $r$ is the intervention save rate, $v$ is customer value, and $c$ is contact cost. Customers are ranked by $V(x)$ and selected until the retention budget is exhausted. This makes calibration important: overconfident probabilities can systematically overspend the budget.
+
+\section*{2. Method}
+The IBM Telco Customer Churn data are cleaned with leakage-safe feature preparation. Identifiers are removed, numeric charges are coerced and imputed, categorical variables are one-hot encoded, and numeric variables are standardized within a scikit-learn pipeline. A fixed seed of 42, an 80/20 stratified holdout, five-fold validation, and five-fold sigmoid calibration define the evaluation protocol.
+
+Five candidates are compared: elastic-net logistic regression, RBF support-vector classification, random forest, XGBoost, and a PyTorch multilayer perceptron. Hyperparameters are tuned on the training partition using validation PR-AUC. The final champion is selected without using the test set for model choice. Reliability is assessed with Brier score, log loss, ROC-AUC, and quantile-binned calibration curves.
+
+\section*{3. Results}
+The RBF SVC was selected as champion by validation PR-AUC. On the independent test set it achieved ROC-AUC $=0.846$, PR-AUC $=0.667$, and Brier score $=0.137$; bootstrap standard deviations were 0.011, 0.025, and 0.005, respectively. These results indicate strong ranking performance with probability quality explicitly measured rather than inferred from accuracy.
+
+\begin{center}
+\small
+\begin{tabular}{lccc}
+\toprule
+Model & Validation PR-AUC & Test ROC-AUC & Test Brier \\
+\midrule
+SVC (RBF) & 0.670 $\pm$ 0.019 & 0.846 $\pm$ 0.011 & 0.137 $\pm$ 0.005 \\
+Logistic regression & 0.670 $\pm$ 0.016 & 0.848 $\pm$ 0.011 & 0.135 $\pm$ 0.005 \\
+MLP & 0.668 $\pm$ 0.016 & 0.846 $\pm$ 0.011 & 0.137 $\pm$ 0.006 \\
+XGBoost & 0.666 $\pm$ 0.021 & 0.844 $\pm$ 0.011 & 0.138 $\pm$ 0.006 \\
+Random forest & 0.665 $\pm$ 0.020 & 0.845 $\pm$ 0.011 & 0.136 $\pm$ 0.006 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{4. Production MLOps design}
+Training logs parameters, metrics, signatures, and the serialized model to the Databricks-hosted MLflow experiment. The registered Unity Catalog model is \texttt{prod.tccp-cicd.telco\_churn}, with the mutable \texttt{Champion} alias identifying the production version. A Databricks Asset Bundle deploys the training notebook through GitHub Actions. The job uses serverless compute and a controlled environment containing NumPy, SciPy, PyArrow, scikit-learn, XGBoost, PyTorch, and MLflow. A service principal executes the production job, while CI/CD authentication is isolated in GitHub environment secrets.
+
+\section*{5. Limitations and conclusion}
+The evaluation uses a single historical dataset and does not establish performance under future distribution shift. Before live budget allocation, the model should be validated on a fresh time-based holdout, monitored for calibration drift, and compared with intervention outcomes. The central contribution is an end-to-end decision system in which model quality, probability reliability, reproducibility, and deployment governance are treated as one problem.
+
+\end{document}
