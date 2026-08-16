@@ -6,7 +6,7 @@ include:
 
 variables:
   cicd_service_principal:
-    default: telco-churn-cicd
+    default: 5e8f7b77-8430-47ce-9278-fad1fb736896
 
 targets:
   prod:
