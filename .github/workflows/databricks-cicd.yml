@@ -13,14 +13,16 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    environment: prod
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
       - name: Validate Databricks bundle
         env:
-          DATABRICKS_AUTH_TYPE: github-oidc
+          DATABRICKS_AUTH_TYPE: oauth-m2m
           DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
         run: databricks bundle validate -t prod
 
   deploy:
@@ -33,13 +35,15 @@ jobs:
       - uses: databricks/setup-cli@main
       - name: Deploy Databricks bundle
         env:
-          DATABRICKS_AUTH_TYPE: github-oidc
+          DATABRICKS_AUTH_TYPE: oauth-m2m
           DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
         run: databricks bundle deploy -t prod
       - name: Run training job
         env:
-          DATABRICKS_AUTH_TYPE: github-oidc
+          DATABRICKS_AUTH_TYPE: oauth-m2m
           DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
         run: databricks bundle run telco_churn_training -t prod
