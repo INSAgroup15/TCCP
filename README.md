@@ -42,7 +42,7 @@ At a demonstration contact budget of 20%, the simulation targets 281 customers a
 | ---: | ---: | ---: | ---: | ---: |
 | `0.30` — retention targeting | **75.5%** | 75.9% | 76.7% | 38.7% |
 | `0.50` — standard classification | **79.3%** | 72.0% | 56.4% | 24.1% |
-| `0.60` — standard classification | **80.1%** | 66% |  | 24.1% |
+| `0.60` — standard classification | **80.1%** | 66% |  | 24.% |
 
 The `0.30` threshold catches more potential churners, while `0.50` gives higher overall accuracy by flagging fewer customers. The retention workflow therefore uses `0.30` for prioritization rather than relying on accuracy alone.
 
