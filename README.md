@@ -104,6 +104,17 @@ Preparation includes numeric coercion, missing-value imputation, categorical enc
 | --- | --- |
 | ![SHAP summary](figures/shap_summary.png) | ![Permutation importance](figures/permutation_importance.png) |
 
+### SHAP summary: how to read the model explanation
+
+The SHAP beeswarm plot follows the current [`shap.plots.beeswarm`](https://shap.readthedocs.io/en/stable/generated/shap.plots.beeswarm.html) API and shows the global behaviour of the champion churn model on representative test rows:
+
+- Each point represents one customer observation.
+- Features are ordered by their average absolute SHAP impact, so the features at the top influence the model most.
+- A positive SHAP value moves the prediction toward **higher churn risk**; a negative value moves it toward **lower churn risk**.
+- Red points indicate relatively high feature values and blue points indicate relatively low feature values. For encoded categorical features, the colour should be interpreted as the encoded value rather than as a simple numeric scale.
+
+In this model, the largest global contributors include `LogTotalCharges`, `Contract_x_Charge`, `MonthlyCharges`, `tenure`, `IsNewCustomer`, and `ChargesPerTenure`. These are model associations, not proof that changing a customer's charges, contract, or tenure will cause or prevent churn. The detailed SHAP figure is generated from real held-out test rows by `src/decision_visuals.py`.
+
 ### From prediction to retention action
 
 ![Retention action simulation](figures/retention_action.png)

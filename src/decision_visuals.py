@@ -154,22 +154,27 @@ def main() -> None:
     ax.grid(axis="x", alpha=.22)
     fig.tight_layout(); fig.savefig(OUT / "permutation_importance.png", bbox_inches="tight", facecolor="white"); plt.close(fig)
 
-    # 10. SHAP explanation from the real champion model and test rows.
+    # 10. SHAP beeswarm from real held-out test rows.
+    # The SVC is model-agnostic, so the modern SHAP Explainer API uses a
+    # permutation explainer with a bounded evaluation budget.
     background = X_test.sample(n=min(5, len(X_test)), random_state=42)
     shap_rows = X_test.sample(n=min(8, len(X_test)), random_state=7)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        explainer = shap.KernelExplainer(model.predict_proba, background, feature_names=list(X_test.columns))
-        shap_result = explainer.shap_values(shap_rows, nsamples=20, silent=True)
-    shap_array = np.asarray(shap_result)
-    if isinstance(shap_result, list):
-        shap_values = shap_result[1]
-    elif shap_array.ndim == 3:
-        shap_values = shap_array[:, :, 1]
-    else:
-        shap_values = shap_array
-    shap.summary_plot(shap_values, shap_rows, show=False, max_display=15, plot_size=(8, 5), color_bar=True)
-    plt.title("SHAP summary: drivers of predicted churn", pad=16)
+        explainer = shap.Explainer(model.predict_proba, background, feature_names=list(X_test.columns))
+        shap_result = explainer(shap_rows, max_evals=65)
+    shap_explanation = shap_result[..., 1] if shap_result.values.ndim == 3 else shap_result
+    shap_values = shap_explanation.values
+    shap.plots.beeswarm(
+        shap_explanation,
+        max_display=18,
+        show=False,
+        color_bar=True,
+        s=18,
+        plot_size=(9, 7),
+        color_bar_label="Feature value",
+    )
+    plt.title("SHAP beeswarm: drivers of predicted churn", pad=16)
     plt.tight_layout()
     plt.savefig(OUT / "shap_summary.png", bbox_inches="tight", facecolor="white", dpi=220)
     plt.close()
