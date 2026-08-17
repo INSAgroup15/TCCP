@@ -35,8 +35,13 @@ def train(data_path, output_path, seed=42, mlflow_experiment="telco-churn", mlfl
         })
         mlflow.sklearn.log_model(
             model,
-            artifact_path="model",
+            name="model",
             registered_model_name=mlflow_model_name,
+            skops_trusted_types=[
+                "sklearn.calibration._CalibratedClassifier",
+                "sklearn.calibration._SigmoidCalibration",
+                "sklearn.model_selection._split.StratifiedKFold",
+            ],
         )
         print(f"MLflow run: {run.info.run_id} ({tracking_uri})")
     out = Path(output_path); out.parent.mkdir(parents=True, exist_ok=True); joblib.dump({"model": model, "X_test": Xte, "y_test": yte, "seed": seed}, out)
