@@ -14,6 +14,7 @@ def train(data_path, output_path, seed=42, mlflow_experiment="telco-churn", mlfl
     try:
         import mlflow
         import mlflow.sklearn
+        from mlflow.models import infer_signature
     except ImportError as error:
         raise RuntimeError("MLflow is required for training. Install requirements.txt first.") from error
     df = load_data(data_path); X, y, prep = split_xy(df)
@@ -37,6 +38,8 @@ def train(data_path, output_path, seed=42, mlflow_experiment="telco-churn", mlfl
             model,
             name="model",
             registered_model_name=mlflow_model_name,
+            input_example=Xte.head(5),
+            signature=infer_signature(Xte.head(5), model.predict(Xte.head(5))),
             skops_trusted_types=[
                 "sklearn.calibration._CalibratedClassifier",
                 "sklearn.calibration._SigmoidCalibration",
