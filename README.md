@@ -1,6 +1,8 @@
-# TCCP  Trustworthy Customer Churn Prediction
+# TCCP: Trustworthy Customer Churn Prediction
 
 An end-to-end machine-learning project that turns customer data into reliable churn probabilities, understandable explanations, and retention actions that respect a limited budget.
+
+The project includes a production-ready FastAPI service for health checks, model metadata, and online churn prediction.
 
 ![ROC and precision-recall curves](figures/roc_pr_curves.png)
 
@@ -34,17 +36,35 @@ The champion model is a calibrated RBF Support Vector Classifier selected by val
 | Final test accuracy at threshold 0.30 | **75.5%** |
 | Test balanced accuracy | 0.759 |
 
-At a demonstration contact budget of 20%, the simulation targets 281 customers and estimates approximately **$7,654** in net value. This is a scenario estimate based on assumed save rate, customer value, and contact cost—not measured causal revenue.
+At a demonstration contact budget of 20%, the simulation targets 281 customers and estimates approximately **$7,654** in net value. This is a scenario estimate based on assumed save rate, customer value, and contact cost, not measured causal revenue.
 
 ### Accuracy by decision threshold
 
 | Decision threshold | Test accuracy | Balanced accuracy | Recall | Customers flagged |
 | ---: | ---: | ---: | ---: | ---: |
-| `0.30` — retention targeting | **75.5%** | 75.9% | 76.7% | 38.7% |
-| `0.50` — standard classification | **79.3%** | 72.0% | 56.4% | 24.1% |
-| `0.60` — standard classification | **80.1%** | 66% |  | 24.% |
+| `0.30` (retention targeting) | **75.5%** | 75.9% | 76.7% | 38.7% |
+| `0.50` (standard classification) | **79.3%** | 72.0% | 56.4% | 24.1% |
+| `0.60` (standard classification) | **80.1%** | 66.6% | 38.0% | 13.6% |
 
-The `0.30` threshold catches more potential churners, while `0.50` gives higher overall accuracy by flagging fewer customers. The retention workflow therefore uses `0.30` for prioritization rather than relying on accuracy alone.
+The `0.30` threshold catches more potential churners, while `0.50` and `0.60` flag fewer customers and give higher overall accuracy. The retention workflow therefore uses `0.30` for prioritization rather than relying on accuracy alone.
+
+### Complete benchmark at threshold 0.60
+
+The table below reports held-out test performance for every benchmarked model. A customer is classified as likely to churn when the predicted probability is at least `0.60`.
+
+![Overall model benchmark comparison](figures/files/model_benchmark_comparison.png)
+
+The visual shows the overall test-accuracy comparison. The exact threshold-0.60 results are listed in the table below.
+
+| Model | Accuracy | Balanced Accuracy | Precision | Recall | F1-score |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| SVC (RBF) | 0.800568 | 0.666168 | 0.743455 | 0.379679 | **0.502655** |
+| Logistic regression | 0.794180 | 0.655844 | 0.725806 | 0.360963 | **0.482143** |
+| Neural network | 0.799148 | **0.678863** | 0.702222 | **0.422460** | **0.527546** |
+| XGBoost | 0.794890 | 0.663157 | 0.711443 | 0.382353 | **0.497391** |
+| Random forest | 0.792761 | 0.661708 | 0.700980 | 0.382353 | **0.494810** |
+
+The neural network has the highest F1-score at threshold `0.60` (**0.527546**). F1 balances precision and recall. It should be interpreted together with campaign cost and the number of customers the business can contact.
 
 ## Dataset
 
@@ -53,7 +73,7 @@ The project uses the IBM Telco Customer Churn dataset, supplied in this reposito
 | Property | Description |
 | --- | --- |
 | Observations | 7,043 telecom customers |
-| Target | `Churn` — `1` for churn, `0` for staying |
+| Target | `Churn`: `1` for churn, `0` for staying |
 | Raw identifier | `customerID`, excluded from training |
 | Main customer data | Demographics, tenure, services, contract, billing, and charges |
 | Raw data issue | 11 whitespace values in `TotalCharges` |
@@ -125,7 +145,7 @@ The demonstration policy uses these tiers:
 | --- | --- | ---: | --- |
 | Immediate intervention | `p >= 0.50` | 79.3% | High-touch retention offer or priority call |
 | Nurture sequence | `0.30 <= p < 0.50` | 75.5% at campaign threshold | Targeted message, service review, or incentive test |
-| Monitor | `p < 0.30` | — | Standard service and drift monitoring |
+| Monitor | `p < 0.30` | Not applicable | Standard service and drift monitoring |
 
 ## Repository structure
 
@@ -199,7 +219,14 @@ python -m src.batch_score \
 
 The output contains `predicted_churn_probability` and `predicted_churn`.
 
-## API service
+## FastAPI service
+
+The project includes a FastAPI application for serving the registered churn model. It provides:
+
+- `GET /health` for service and model status
+- `GET /metadata` for model version and feature-contract information
+- `POST /predict` for scoring one to 10,000 customer records
+- `GET /docs` for the interactive OpenAPI documentation
 
 Start the API locally after a production model has been registered:
 
@@ -209,10 +236,10 @@ uvicorn src.serve:app --reload
 
 Useful endpoints:
 
-- `GET /health` — service and model status
-- `GET /metadata` — active model metadata and feature contract
-- `POST /predict` — score one to 10,000 customer records
-- `GET /docs` — interactive OpenAPI documentation
+- `GET /health`: service and model status
+- `GET /metadata`: active model metadata and feature contract
+- `POST /predict`: score one to 10,000 customer records
+- `GET /docs`: interactive OpenAPI documentation
 
 Example request:
 
