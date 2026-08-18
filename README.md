@@ -52,7 +52,7 @@ The `0.30` threshold catches more potential churners, while `0.50` and `0.60` fl
 
 The table below reports held-out test performance for every benchmarked model. A customer is classified as likely to churn when the predicted probability is at least `0.60`.
 
-![Overall model benchmark comparison](figures/files/model_benchmark_comparison.png)
+![Overall model benchmark comparison](figures/frame.png)
 
 The visual shows the overall test-accuracy comparison. The exact threshold-0.60 results are listed in the table below.
 
