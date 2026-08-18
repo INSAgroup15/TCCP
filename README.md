@@ -255,4 +255,4 @@ The full methodology, data contract, evaluation, explainability discussion, rete
 ## License and attribution
 
 The code is released under the MIT License. Dataset rights remain with the original dataset provider - `https://www.kaggle.com/datasets/blastchar/telco-customer-churn`
-**Copyright © 2026 mikiyas zenebe**
+**Copyright © 2026 INSA CTC Group 15s**
