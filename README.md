@@ -122,7 +122,7 @@ Preparation includes numeric coercion, missing-value imputation, categorical enc
 
 | SHAP summary | Feature importance |
 | --- | --- |
-| ![SHAP summary](figures/files/shap_beeswarm_32col.png) | ![Permutation importance](figures/files/shap_bar_32col.png.png) |
+| ![SHAP summary](figures/files/shap_beeswarm_32col.png) | ![Permutation importance](figures/files/shap_bar_32col.png) |
 
 ### SHAP summary: how to read the model explanation
 
