@@ -123,6 +123,8 @@ The design principle is traceability. Every production score should be reproduci
 \section*{3. Data understanding and preparation}
 The raw IBM Telco Customer Churn file contains 7,043 customers. The cleaning stage strips column names, converts the whitespace-encoded \texttt{TotalCharges} field to numeric values, maps \texttt{Churn} from Yes/No to 1/0, removes \texttt{customerID} from model inputs, and separates target from predictors. Numeric fields are median-imputed and standardized; categorical fields are most-frequent-imputed and one-hot encoded inside a scikit-learn pipeline. Engineered variables include service count, tenure bins, charge interactions, charge-per-tenure, logarithmic charges, and a new-customer flag. The dataset source is the publicly available \href{https://www.kaggle.com/datasets/blastchar/telco-customer-churn}{IBM Telco Customer Churn dataset on Kaggle}.
 
+The code also includes an optional KKBox preparation path in \texttt{src/kkbox\_features.py}. KKBox is not treated as if it had the same row structure as Telco. Its \texttt{train} labels are joined to \texttt{members}, while \texttt{transactions} and \texttt{user\_logs} are aggregated by \texttt{msno} in chunks. This produces one modelling row per subscriber and avoids counting repeated event rows as independent customers. The resulting flat file uses the same \texttt{Churn} target and can be passed to the common training script. The current reported metrics remain Telco results; KKBox requires a separate run because its label definition, class balance, temporal split, and feature distributions differ.
+
 \begin{table}[!ht]
 \centering\small
 \begin{tabular}{ll}
