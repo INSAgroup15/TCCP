@@ -12,7 +12,8 @@
 \usepackage{enumitem}
 \usepackage{hyperref}
 \usepackage{array}
-\graphicspath{{../figures/}{figures/}}
+\usepackage[section]{placeins}
+\graphicspath{{../figures/files/}{../figures/}{figures/files/}{figures/}}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{3pt}
 \setlist{nosep,leftmargin=*}
@@ -24,7 +25,7 @@
 \fancyfoot[C]{\thepage}
 
 \newcommand{\figpair}[4]{%
-\begin{figure}[!ht]
+\begin{figure}[!htbp]
 \centering
 \begin{minipage}[t]{0.48\textwidth}\centering\includegraphics[width=\linewidth]{#1}\caption{#2}\end{minipage}\hfill
 \begin{minipage}[t]{0.48\textwidth}\centering\includegraphics[width=\linewidth]{#3}\caption{#4}\end{minipage}
@@ -40,7 +41,14 @@
 \thispagestyle{empty}
 \centering
 \vspace*{1.0cm}
-{\Large\textsc{Group 15 Technical Paper}\par}
+{\Large\textsc{TCCP Technical Paper}\par}
+\vspace{0.25cm}
+% {\large Group members\par}
+\vspace{0.25cm}
+{\small
+\begin{tabular}{lllllllll} 
+Mikiyas Zenebe & Selemun Abrha &Yafet Mulaw & Haile Sintayehu & Fisehatsion Adisu & Tedros Nigus\\
+\end{tabular}\par}
 \vspace{1.0cm}
 {\LARGE\bfseries TCCP\par}
 \vspace{0.2cm}
@@ -52,7 +60,7 @@
 \vspace{0.65cm}
 {\large A reproducible machine-learning, explainability, and MLOps system\par}
 \vspace{0.9cm}
-\includegraphics[width=0.82\textwidth]{model_metrics.png}\par
+\includegraphics[width=0.82\textwidth]{frame.png}\par
 \vfill
 {\large IBM Telco Customer Churn Dataset\par}
 \vspace{0.2cm}
@@ -62,16 +70,19 @@
 \end{titlepage}
 
 \setcounter{page}{1}
-\begin{center}
-{\Large\bfseries TCCP: Trustworthy Customer Churn Prediction for Retention-Budget Allocation\par}
-\vspace{0.15cm}{\large Group 15\par}
-\end{center}
+% \begin{center}
+% {\Large\bfseries TCCP: Trustworthy Customer Churn Prediction for Retention-Budget Allocation\par}
+% \vspace{0.15cm}{\large Group 15\par}
+% \end{center}
+
+% \section*{summary}
+% TCCP helps a telecom retention team identify customers who may leave. It gives each customer a risk percentage, explains the main reasons behind that score, and ranks customers so that a limited retention budget can be used first where it may help most. The model is not a guarantee that a customer will leave, and an explanation is not proof that changing a feature will prevent churn. The results should support human decisions and controlled retention experiments.
 
 \begin{abstract}
 Churn prediction becomes valuable only when it supports a safe and explainable decision. TCCP is an end-to-end system that turns the IBM Telco Customer Churn dataset into calibrated customer-risk estimates, interpretable drivers, and a ranked retention action list. The system cleans the source data, compares five classifiers, selects an RBF support-vector classifier (SVC) using validation PR-AUC, evaluates discrimination and calibration on a held-out test set, and converts risk into expected net value under a contact budget. The final model achieved test ROC-AUC $=0.846$, PR-AUC $=0.667$, and Brier score $=0.137$. The implementation also packages feature contracts, batch scoring, model registry stages, an API, and CI/CD controls so that a prediction can be traced from input data to production action.
 \end{abstract}
 
-\textbf{Keywords:} customer churn, trustworthy AI, probability calibration, SHAP, partial dependence, retention optimization, MLOps
+% \textbf{Keywords:} customer churn, trustworthy AI, probability calibration, SHAP, partial dependence, retention optimization, MLOps
 
 \section*{1. TCCP problem statement}
 Telecom churn is not only a classification problem. A business team must decide which customers to contact, what evidence supports that decision, and how many contacts the budget can afford. A model that maximizes accuracy while producing poorly calibrated probabilities can waste offers on low-risk customers or miss customers who need intervention.
@@ -108,7 +119,7 @@ Models drift or become untraceable & $\rightarrow$ & Serialized artifact, metada
 The design principle is traceability. Every production score should be reproducible from the model version, feature schema, input record, and scoring code. The system therefore treats data quality, probability quality, explainability, and deployment governance as one product rather than separate notebooks.
 
 \section*{3. Data understanding and preparation}
-The raw IBM Telco Customer Churn file contains 7,043 customers. The cleaning stage strips column names, converts the whitespace-encoded \texttt{TotalCharges} field to numeric values, maps \texttt{Churn} from Yes/No to 1/0, removes \texttt{customerID} from model inputs, and separates target from predictors. Numeric fields are median-imputed and standardized; categorical fields are most-frequent-imputed and one-hot encoded inside a scikit-learn pipeline. Engineered variables include service count, tenure bins, charge interactions, charge-per-tenure, logarithmic charges, and a new-customer flag.
+The raw IBM Telco Customer Churn file contains 7,043 customers. The cleaning stage strips column names, converts the whitespace-encoded \texttt{TotalCharges} field to numeric values, maps \texttt{Churn} from Yes/No to 1/0, removes \texttt{customerID} from model inputs, and separates target from predictors. Numeric fields are median-imputed and standardized; categorical fields are most-frequent-imputed and one-hot encoded inside a scikit-learn pipeline. Engineered variables include service count, tenure bins, charge interactions, charge-per-tenure, logarithmic charges, and a new-customer flag. The dataset source is the publicly available \href{https://www.kaggle.com/datasets/blastchar/telco-customer-churn}{IBM Telco Customer Churn dataset on Kaggle}.
 
 \begin{table}[!ht]
 \centering\small
@@ -116,7 +127,7 @@ The raw IBM Telco Customer Churn file contains 7,043 customers. The cleaning sta
 \toprule
 \textbf{Data contract item} & \textbf{Observed implementation}\\
 \midrule
-Source & IBM Telco Customer Churn dataset\\
+Source & IBM Telco Customer Churn dataset; \href{https://www.kaggle.com/datasets/blastchar/telco-customer-churn}{Kaggle source link}\\
 Rows retained & 7,043 customers\\
 Raw missing values & 11 whitespace values in \texttt{TotalCharges}\\
 Cleaned feature count & 32 columns\\
@@ -130,20 +141,18 @@ Random seed & 42\\
 \label{tab:data-contract}
 \end{table}
 
-\begin{figure}[!ht]
+\figpair{churn_balance.png}{Observed churn balance in the cleaned dataset.}{monthly_charges.png}{Monthly charges by observed churn outcome.}
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.72\textwidth]{data_quality.png}
-\caption{Data-quality evidence generated from the raw and cleaned files. The 11 whitespace values in \texttt{TotalCharges} are resolved by numeric coercion and imputation.}
-\label{fig:data-quality}
+\includegraphics[width=0.72\textwidth]{numeric_correlation.png}
+\caption{Correlation of core numeric variables in the cleaned 32-feature dataset.}
+\label{fig:numeric-correlation}
 \end{figure}
-
-\figpair{churn_balance.png}{Observed target balance.}{tenure_distribution.png}{Tenure distributions by observed outcome.}
-\figpair{monthly_charges.png}{Monthly-charge distributions by outcome.}{numeric_correlation.png}{Correlation of core numeric variables.}
 
 \section*{4. Modelling and evaluation protocol}
 TCCP benchmarks five models: elastic-net logistic regression, RBF SVC, random forest, XGBoost, and a PyTorch multilayer perceptron. Hyperparameters are tuned only on the training partition using five-fold validation PR-AUC. The independent test set is used once for final reporting. This prevents test-set performance from silently becoming a model-selection criterion.
 
-The primary selection metric is PR-AUC because churn is an imbalanced positive class and the operational team needs a useful ranking of likely churners. ROC-AUC measures broad ranking quality; accuracy and balanced accuracy are secondary threshold metrics; Brier score measures squared probability error. Calibration is assessed with quantile-binned predicted probabilities against observed churn rates.
+The primary selection metric is PR-AUC because churn is an imbalanced positive class and the operational team needs a useful ranking of likely churners. For non-technical readers, AUC is a summary of how well the model separates customers who churn from customers who stay: a value closer to 1.0 is better than a value near 0.5. ROC-AUC measures separation across all decision thresholds, while PR-AUC focuses on how useful the ranked high-risk group is. Accuracy describes the share of correct yes/no decisions at one threshold, and Brier score measures how close the predicted percentages are to the observed outcomes; lower Brier scores are better. The selected classifier is wrapped in five-fold sigmoid calibration, with the calibration folds kept inside the training partition. The independent test set is then used for the final reliability curve and Brier score, avoiding calibration leakage.
 
 \begin{table}[!ht]
 \centering\scriptsize
@@ -162,40 +171,65 @@ Random forest & 0.665 $\pm$ 0.020 & 0.845 $\pm$ 0.011 & 0.655 $\pm$ 0.026 & 0.76
 \label{tab:benchmark}
 \end{table}
 
-\begin{figure}[!ht]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.86\textwidth]{model_metrics.png}
-\caption{Model comparison across ranking and threshold metrics.}
+\includegraphics[width=0.90\textwidth]{all_models_multi_metric.png}
+\caption{All five models across six reported metrics at threshold $0.30$, as shown in the local project figure.}
 \label{fig:metrics}
 \end{figure}
 
-\figpair{roc_pr_curves.png}{ROC and precision-recall curves from the test predictions.}{calibration_test.png}{Empirical calibration by probability decile.}
+\figpair{roc_pr_curves.png}{ROC and precision-recall curves from the held-out test predictions.}{calibration_test.png}{Reliability curve from ten quantile bins on the independent test set.}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.96\textwidth]{all_models_confusion_matrices.png}
+\caption{Confusion matrices for all five models at threshold $0.30$ on 1,409 real test customers.}
+\label{fig:confusion-matrices}
+\end{figure}
+
+The calibration plot is close to the diagonal through most of the observed risk range, indicating that the predicted probabilities are usable as risk estimates rather than only as a ranking score. The highest-risk bin is above the diagonal, so the champion is somewhat conservative at the upper end: observed churn is higher than the mean predicted probability in that bin. This supports ranking for retention, but it does not remove the need to monitor calibration after deployment. The test Brier score of $0.137$ summarizes the combined probability error across all customers.
 
 \section*{5. Explainability: from score to reason}
 TCCP uses explanations as decision support, not as causal claims. SHAP values describe how the fitted model moves an individual prediction relative to a background sample. Positive SHAP values increase predicted churn output; negative values reduce it. Partial dependence shows the model's average response when one feature is varied while other rows are retained. These views answer different questions: SHAP explains local and global model behavior, while partial dependence summarizes an average response curve.
 
-\begin{figure}[!ht]
+The available explainability images in \texttt{figures/files} are explicitly labeled as XGBoost diagnostics, while the selected production champion is the RBF SVC. They are therefore presented as real project diagnostics for the engineered feature set, not as SVC-specific measurements. This distinction keeps the visual evidence aligned with the model name printed inside each image.
+
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.83\textwidth]{shap_summary.png}
-\caption{SHAP summary plot from real test-set rows. Feature importance and direction describe model behavior, not intervention causality.}
+\includegraphics[width=0.83\textwidth]{shap1.png}
+\caption{SHAP summary for the 32-feature engineered set. The local image identifies the displayed explainer as XGBoost; it is model-behaviour evidence, not intervention causality.}
 \label{fig:shap-summary}
 \end{figure}
 
-\begin{figure}[!ht]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.94\textwidth]{shap_pdp_dependence.png}
-\caption{SHAP dependence and partial-dependence plots for tenure and MonthlyCharges. The plots are generated from the trained SVC and real test-set data.}
+\includegraphics[width=0.94\textwidth]{shap_dependence_top2_32col.png}
+\caption{SHAP dependence plots for Contract and tenure in the 32-feature set, using the feature names and axes shown in the local image.}
 \label{fig:shap-pdp}
 \end{figure}
 
-\begin{figure}[!ht]
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.82\textwidth]{permutation_importance.png}
-\caption{Model-agnostic permutation importance measured as the decrease in test ROC-AUC after feature permutation.}
+\includegraphics[width=0.82\textwidth]{shap_bar_32col.png}
+\caption{Top churn drivers by mean absolute SHAP value for the 32-feature set.}
 \label{fig:permutation}
 \end{figure}
 
-The explanations support actionable hypotheses. For example, tenure, contract-charge interactions, monthly charges, and service indicators can guide retention experiments. They do not prove that changing a contract or charge will cause a customer to stay; that question requires randomized intervention measurement.
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.93\textwidth]{shap_waterfall_churned_32col.png}
+\caption{Individual prediction explanation for a real customer who churned, using the 32-feature set. Positive and negative contributions are shown exactly as in the local waterfall image.}
+\label{fig:waterfall-churned}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.93\textwidth]{shap_waterfall_retained_32col.png}
+\caption{Individual prediction explanation for a retained customer, using the 32-feature set.}
+\label{fig:waterfall-retained}
+\end{figure}
+
+The explanations support actionable hypotheses. In the local SHAP figures, Contract, tenure, Fiber\_x\_Charge, electronic check payments, and InternetService\_Fiber are among the prominent displayed drivers. These are model associations, not proof that changing a contract, payment method, or service will cause a customer to stay; that question requires randomized intervention measurement.
 
 \section*{6. Prediction-to-action policy}
 The model output is a probability, not an automatic offer. TCCP applies an explicit policy: rank customers by predicted churn probability, apply a targeting threshold of 0.30 for the retention workflow, and select the highest-ranked customers until the budget is consumed. The conventional 0.50 classification threshold remains visible for comparison but is not assumed to be the economically optimal intervention threshold.
@@ -216,20 +250,6 @@ Monitor & $p<0.30$ & Standard service and drift monitoring\\
 \caption{Demonstration action tiers. The tiers are policy choices and should be validated with intervention outcomes.}
 \label{tab:tiers}
 \end{table}
-
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=0.93\textwidth]{prediction_risk.png}
-\caption{Predicted churn-risk distribution on the independent test set, with targeting and binary-classification reference thresholds.}
-\label{fig:risk}
-\end{figure}
-
-\begin{figure}[!ht]
-\centering
-\includegraphics[width=0.94\textwidth]{retention_action.png}
-\caption{Retention action graph: expected net value by contact budget and the resulting prediction-to-action tiers.}
-\label{fig:action}
-\end{figure}
 
 At a 20\% contact budget, the test-set simulation targets 281 customers and estimates approximately \$7,654 in net value under the stated assumptions. This is a scenario estimate, not an observed causal return. Production use should replace the assumed save rate and value with measured treatment outcomes and confidence intervals.
 
@@ -259,6 +279,19 @@ The next TCCP release should add four safeguards: a time-based validation set, c
 
 \section*{9. Conclusion}
 TCCP solves the complete churn workflow rather than optimizing one isolated metric. It starts with a reproducible data contract, compares models under a leakage-safe protocol, selects and evaluates a calibrated champion, explains risk with SHAP and partial dependence, translates probabilities into a budget-aware action policy, and packages the result for governed serving. The central result is not simply an ROC-AUC value: it is a traceable path from a customer record to a defensible retention decision.
+
+\section*{Summary for decision-makers}
+In summary, the system provides three practical outputs: a ranked list of customers at higher risk of churn, a probability that can be checked for reliability, and an explanation of the factors associated with each prediction. The reported ROC-AUC of $0.846$ means the model generally ranks a customer who churned above a customer who stayed. The PR-AUC of $0.667$ shows that the ranking remains useful for finding likely churners despite class imbalance. The Brier score of $0.137$ and the reliability curve indicate how trustworthy the percentages are, but these results should still be monitored on new customer data. Final retention decisions should combine the model with campaign capacity, customer-service judgment, and measured experiment results.
+
+\section*{References}
+\begin{enumerate}[leftmargin=*]
+\item Blastchar. \textit{Telco Customer Churn Dataset}. Kaggle. Available at: \href{https://www.kaggle.com/datasets/blastchar/telco-customer-churn}{https://www.kaggle.com/datasets/blastchar/telco-customer-churn}. Accessed August 2026.
+\item TCCP project source files. \textit{Data preparation, calibration, model training, and visualisation implementation}. Local project files: \texttt{src/preprocessing.py}, \texttt{src/train.py}, \texttt{src/calibration.py}, \texttt{src/decision\_visuals.py}, and \texttt{notebooks/03\_calibration.ipynb}.
+\item TCCP project artifacts. \textit{Benchmark summary, production metadata, and generated figures}. Local project files: \texttt{artifacts/benchmark\_summary.csv}, \texttt{artifacts/production\_metadata.json}, and \texttt{figures/}.
+\end{enumerate}
+
+\vspace{0.3cm}
+\textbf{Authors and copyright.} This technical paper and the TCCP implementation were prepared by Group 15. Copyright \copyright{} 2026 Group 15. The underlying dataset remains subject to the rights and terms of its original provider; see Reference 1.
 
 \newpage
 \section*{Appendix A. Production feature schema}
