@@ -277,7 +277,7 @@ The dataset is historical and does not prove future performance or causal treatm
 
 ## Technical paper
 
-The full methodology, data contract, evaluation, explainability discussion, retention policy, and MLOps design are documented in [`reports/mmm.pdf`](reports/mmm.pdf).
+The full methodology, data contract, evaluation, explainability discussion, retention policy, and MLOps design are documented in [`reports/TCCP.pdf`](reports/mmm.pdf).
 
 ## License and attribution
 
