@@ -7,13 +7,16 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 TARGET = "Churn"
-ID_COLUMNS = ["customerID"]
+ID_COLUMNS = ["customerID", "msno"]
 
 def load_data(path):
     df = pd.read_csv(Path(path)); df.columns = df.columns.str.strip()
+    if TARGET not in df and "is_churn" in df:
+        df = df.rename(columns={"is_churn": TARGET})
     if TARGET not in df: raise ValueError(f"Expected {TARGET!r}; found {list(df.columns)}")
     if "TotalCharges" in df: df["TotalCharges"] = pd.to_numeric(df["TotalCharges"], errors="coerce")
-    df[TARGET] = df[TARGET].astype(str).str.strip().map({"Yes": 1, "No": 0})
+    labels = df[TARGET].astype(str).str.strip()
+    df[TARGET] = labels.map({"Yes": 1, "No": 0, "1": 1, "0": 0})
     if df[TARGET].isna().any(): raise ValueError("Churn must contain only Yes/No values")
     return df
 

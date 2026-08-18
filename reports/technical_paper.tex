@@ -84,6 +84,8 @@ Churn prediction becomes valuable only when it supports a safe and explainable d
 
 % \textbf{Keywords:} customer churn, trustworthy AI, probability calibration, SHAP, partial dependence, retention optimization, MLOps
 
+\textbf{Project scope and challenge level.} The implemented version uses the IBM Telco Customer Churn dataset from Kaggle, with approximately 7,000 customer records. The build objective is a churn model whose predicted probabilities are trustworthy enough to drive a retention budget, together with a SHAP-based report of churn drivers and a top-$k$ targeting simulation. The intermediate difficulty comes from making a budget decision under expected value, rather than reporting AUC alone. Categorical encoding, calibration curves, Brier score, and SHAP are therefore core methods. The WSDM KKBox Churn dataset, which contains millions of records across separate transaction and user-log tables, is reserved as the harder extension and is not the dataset used for the results reported in this paper.
+
 \section*{1. TCCP problem statement}
 Telecom churn is not only a classification problem. A business team must decide which customers to contact, what evidence supports that decision, and how many contacts the budget can afford. A model that maximizes accuracy while producing poorly calibrated probabilities can waste offers on low-risk customers or miss customers who need intervention.
 

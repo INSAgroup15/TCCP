@@ -70,6 +70,8 @@ The neural network has the highest F1-score at threshold `0.60` (**0.527546**). 
 
 The project uses the IBM Telco Customer Churn dataset, supplied in this repository as `data/telco.csv`.
 
+The current implementation is the intermediate version of the project. It builds a churn model with probabilities calibrated for retention-budget decisions, a SHAP report of churn drivers, and a top-k targeting simulation. The WSDM KKBox Churn dataset is the planned harder extension. It contains millions of rows split across transaction and user-log tables, so it is not used for the results in this repository.
+
 | Property | Description |
 | --- | --- |
 | Observations | 7,043 telecom customers |
