@@ -17,8 +17,11 @@ def train(data_path, output_path, seed=42, mlflow_experiment="telco-churn", mlfl
         from mlflow.models import infer_signature
     except ImportError as error:
         raise RuntimeError("MLflow is required for training. Install requirements.txt first.") from error
+    print(f"Loading training data: {data_path}", flush=True)
     df = load_data(data_path); X, y, prep = split_xy(df)
+    print(f"Loaded {len(df):,} rows and {X.shape[1]:,} raw features", flush=True)
     Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=.2, stratify=y, random_state=seed)
+    print(f"Train rows: {len(Xtr):,}; test rows: {len(Xte):,}", flush=True)
     base = Pipeline([("preprocess", prep), ("model", LogisticRegression(max_iter=2000, class_weight="balanced", random_state=seed))])
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "file:./mlruns")
     mlflow.set_tracking_uri(tracking_uri)
@@ -26,7 +29,8 @@ def train(data_path, output_path, seed=42, mlflow_experiment="telco-churn", mlfl
         mlflow.set_registry_uri(os.environ["MLFLOW_REGISTRY_URI"])
     mlflow.set_experiment(mlflow_experiment)
     with mlflow.start_run() as run:
-        model = CalibratedClassifierCV(base, method="sigmoid", cv=5); model.fit(Xtr, ytr)
+        print("Training calibrated logistic regression with 5-fold calibration...", flush=True)
+        model = CalibratedClassifierCV(base, method="sigmoid", cv=5, n_jobs=-1); model.fit(Xtr, ytr)
         probabilities = model.predict_proba(Xte)[:, 1]
         mlflow.log_params({"seed": seed, "test_size": 0.2, "calibration": "sigmoid", "cv_folds": 5})
         mlflow.log_metrics({
@@ -46,8 +50,9 @@ def train(data_path, output_path, seed=42, mlflow_experiment="telco-churn", mlfl
                 "sklearn.model_selection._split.StratifiedKFold",
             ],
         )
-        print(f"MLflow run: {run.info.run_id} ({tracking_uri})")
+        print(f"MLflow run: {run.info.run_id} ({tracking_uri})", flush=True)
     out = Path(output_path); out.parent.mkdir(parents=True, exist_ok=True); joblib.dump({"model": model, "X_test": Xte, "y_test": yte, "seed": seed}, out)
+    print(f"Saved trained model: {out}", flush=True)
     return model, Xte, yte
 
 if __name__ == "__main__":
