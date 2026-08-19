@@ -12,7 +12,7 @@ from .model_registry import ModelRegistry
 
 def prepare_features(frame: pd.DataFrame, feature_columns: list[str]) -> pd.DataFrame:
     """Drop non-feature columns and enforce the training schema before scoring."""
-    candidates = frame.drop(columns=["Churn", "customerID"], errors="ignore")
+    candidates = frame.drop(columns=["Churn", "customerID", "msno"], errors="ignore")
     missing = sorted(set(feature_columns) - set(candidates.columns))
     if missing:
         raise ValueError(f"Input data is missing required features: {missing}")

@@ -84,6 +84,8 @@ Churn prediction becomes valuable only when it supports a safe and explainable d
 
 % \textbf{Keywords:} customer churn, trustworthy AI, probability calibration, SHAP, partial dependence, retention optimization, MLOps
 
+\textbf{Project scope and challenge level.} The implemented version uses the IBM Telco Customer Churn dataset from Kaggle, with approximately 7,000 customer records. The build objective is a churn model whose predicted probabilities are trustworthy enough to drive a retention budget, together with a SHAP-based report of churn drivers and a top-$k$ targeting simulation. The intermediate difficulty comes from making a budget decision under expected value, rather than reporting AUC alone. Categorical encoding, calibration curves, Brier score, and SHAP are therefore core methods. The WSDM KKBox Churn dataset, which contains millions of records across separate transaction and user-log tables, is reserved as the harder extension and is not the dataset used for the results reported in this paper.
+
 \section*{1. TCCP problem statement}
 Telecom churn is not only a classification problem. A business team must decide which customers to contact, what evidence supports that decision, and how many contacts the budget can afford. A model that maximizes accuracy while producing poorly calibrated probabilities can waste offers on low-risk customers or miss customers who need intervention.
 
@@ -120,6 +122,8 @@ The design principle is traceability. Every production score should be reproduci
 
 \section*{3. Data understanding and preparation}
 The raw IBM Telco Customer Churn file contains 7,043 customers. The cleaning stage strips column names, converts the whitespace-encoded \texttt{TotalCharges} field to numeric values, maps \texttt{Churn} from Yes/No to 1/0, removes \texttt{customerID} from model inputs, and separates target from predictors. Numeric fields are median-imputed and standardized; categorical fields are most-frequent-imputed and one-hot encoded inside a scikit-learn pipeline. Engineered variables include service count, tenure bins, charge interactions, charge-per-tenure, logarithmic charges, and a new-customer flag. The dataset source is the publicly available \href{https://www.kaggle.com/datasets/blastchar/telco-customer-churn}{IBM Telco Customer Churn dataset on Kaggle}.
+
+The code also includes an optional KKBox preparation path in \texttt{src/kkbox\_features.py}. KKBox is not treated as if it had the same row structure as Telco. Its \texttt{train} labels are joined to \texttt{members}, while \texttt{transactions} and \texttt{user\_logs} are aggregated by \texttt{msno} in chunks. This produces one modelling row per subscriber and avoids counting repeated event rows as independent customers. The resulting flat file uses the same \texttt{Churn} target and can be passed to the common training script. The current reported metrics remain Telco results; KKBox requires a separate run because its label definition, class balance, temporal split, and feature distributions differ.
 
 \begin{table}[!ht]
 \centering\small

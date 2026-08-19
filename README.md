@@ -70,6 +70,46 @@ The neural network has the highest F1-score at threshold `0.60` (**0.527546**). 
 
 The project uses the IBM Telco Customer Churn dataset, supplied in this repository as `data/telco.csv`.
 
+The current implementation is the intermediate version of the project. It builds a churn model with probabilities calibrated for retention-budget decisions, a SHAP report of churn drivers, and a top-k targeting simulation. The WSDM KKBox Churn dataset is the planned harder extension. It contains millions of rows split across transaction and user-log tables, so it is not used for the results in this repository.
+
+### KKBox extension
+
+The repository now includes a KKBox data-preparation path. KKBox is not row-compatible with Telco: Telco has one row per customer, while KKBox has one label row per subscriber plus repeated transaction and daily listening-log rows. The adapter aggregates those event tables to one row per `msno`, joins member attributes, creates transaction and listening features, and writes a flat file with the same `Churn` target expected by the common trainer.
+
+Download and extract the dataset from [Kaggle](https://www.kaggle.com/datasets/qmdo97/kkboxdataset), then run:
+
+```bash
+python -m src.kkbox_features \
+  --data-dir data/kkbox \
+  --output data/kkbox_features.csv
+
+python -m src.train \
+  --data data/kkbox_features.csv \
+  --output artifacts/kkbox_model.joblib \
+  --mlflow-experiment kkbox-churn
+```
+
+In Windows PowerShell, use these commands on one line:
+
+```powershell
+python -m src.kkbox_features --data-dir data/kkbox --output data/kkbox_features.csv
+python -m src.train --data data/kkbox_features.csv --output artifacts/kkbox_model.joblib --mlflow-experiment kkbox-churn
+```
+
+The preparation step supports `train.csv` or `train_v2.csv`, `members.csv` or `members_v3.csv`, `transactions.csv` or `transactions_v2.csv`, and `user_logs.csv` or `user_logs_v2.csv`. Event files are read in chunks to avoid loading the full logs table into memory. The generated features are subscriber-level aggregates, so repeated event rows do not become duplicate training examples.
+
+To verify the local setup before processing the full dataset, run:
+
+```bash
+python -m unittest discover tests -v
+```
+
+If the command reports that `mlflow` is missing, activate the project environment and install the pinned dependencies first:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
 | Property | Description |
 | --- | --- |
 | Observations | 7,043 telecom customers |
@@ -194,6 +234,7 @@ Run the notebooks in order:
 | `05_retention_simulation.ipynb` | Budget-based customer targeting |
 | `06_threshold_optimization.ipynb` | Threshold and accuracy-recall trade-offs |
 | `07_model_evaluation_visuals.ipynb` | Evaluation and publication-ready visuals |
+| `08_kkbox_colab_training.ipynb` | Simple Google Colab KKBox preparation and training |
 
 Figures can also be regenerated with:
 
